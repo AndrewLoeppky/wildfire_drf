@@ -2,7 +2,7 @@
 # To add a new markdown cell, type '# %% [markdown]'
 # %% [markdown]
 # # Effects of Wildfire Smoke on Forest Productivity in Central Canada.
-# ## Data Aquisition and Scrubbing
+# ## Data Aquisition and Scrubbing - Function Library
 # Program Author: Andrew Loeppky <br>
 # Supervising Professor: Dr. Ian Mckendry <br>
 # Date: May 2020
@@ -14,28 +14,29 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import scipy
 import datetime
+import time
 
 
 # %%
 ### read in data
-
+"""
 # test data (JFM in 2020)
-wask_aod_test_10 = pd.read_csv(
-    "C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev10.csv", skiprows=6
-)
-wask_aod_test_15 = pd.read_csv(
-    "C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev15.csv", skiprows=6
-)
+wask_aod_test_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev10.csv', skiprows=6)
+wask_aod_test_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev15.csv', skiprows=6)
 
 # full length sets (1993-2020)
-# wask_aod_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu10.csv', skiprows=6)
-# wask_aod_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu15.csv', skiprows=6)
-# wask_aod_20 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu20.csv', skiprows=6)
+wask_aod_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu10.csv', skiprows=6)
+wask_aod_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu15.csv', skiprows=6)
+wask_aod_20 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu20.csv', skiprows=6)
 
 # total AOD, whatever that means
-# wask_tot_10 = 0
-# wask_tot_15 = 0
-# wask_tot_20 = 0
+wask_tot_10 = 0
+wask_tot_15 = 0
+wask_tot_20 = 0 
+
+# test longer dataset
+long_test = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu_long_test10.csv', skiprows=6)
+"""
 
 
 # %%
@@ -110,7 +111,7 @@ def plot_aod(dataset):
 
     for index in dataset.columns:
         if index[0:3] == "AOD":
-            ax.scatter(dataset["datetime"], dataset[index], label=index)
+            ax.scatter(dataset["datetime"], dataset[index], label=index, alpha=0.5)
 
     ax.set_title("Test Time Series of AOD at All Available $\lambda$")
     ax.set_xlabel("Date")
@@ -121,5 +122,29 @@ def plot_aod(dataset):
 
 
 # %%
-scrub_aeronet(wask_aod_10)
-plot_aod(wask_aod_10)
+### timer function from the internet
+def timeit(method):
+    """
+    https://www.laurivan.com/braindump-use-a-decorator-to-time-your-python-function/
+    """
+
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+
+        print(f"time to generate plot: {te-ts}s")
+        return result
+
+    return timed
+
+
+# %%
+@timeit
+def main(dataset):
+    scrub_aeronet(dataset)
+    plot_aod(dataset)
+
+
+# %%
+# main(wask_aod_test_10)
