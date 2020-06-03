@@ -122,11 +122,11 @@ def plot_aod(dataset):
     ax.set_ylabel("AOD")
     ax.legend(loc="best")
 
-    plt.savefig("filename.png", dpi=150)
+    plt.savefig("AOD_timeseries.png", dpi=150)
 
 
 # %%
-### timer function from the internet
+### timer decorator function from the internet
 def timeit(method):
     """
     https://www.laurivan.com/braindump-use-a-decorator-to-time-your-python-function/
@@ -136,9 +136,10 @@ def timeit(method):
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
+        elapsed = te - ts
 
-        print(f"time to generate plot: {te-ts}s")
-        return result
+        # print(f'time to generate plot: {elapsed}s')
+        return result, elapsed
 
     return timed
 
