@@ -19,11 +19,15 @@ import time
 
 # %%
 ### read in data
-"""
-# test data (JFM in 2020)
-wask_aod_test_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev10.csv', skiprows=6)
-wask_aod_test_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev15.csv', skiprows=6)
 
+# test data (JFM in 2020)
+wask_aod_test_10 = pd.read_csv(
+    "C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev10.csv", skiprows=6
+)
+wask_aod_test_15 = pd.read_csv(
+    "C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev15.csv", skiprows=6
+)
+"""
 # full length sets (1993-2020)
 wask_aod_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu10.csv', skiprows=6)
 wask_aod_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu15.csv', skiprows=6)
@@ -147,4 +151,4 @@ def main(dataset):
 
 
 # %%
-# main(wask_aod_test_10)
+main(wask_aod_test_10)
