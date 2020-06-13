@@ -14,16 +14,35 @@
 import requests
 import urllib
 import time
-import bs4
+from os import system, name
 
 # %%
-# test run for a single case
-url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2018/08/"
-filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2009/big_smokey.kml"  # or specify the whole path
+# test run for a single case (august 1 2018)
+"""
+url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2018/08/smoke20180801.kml"
+filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20180801.kml"  # or specify the whole path
 
-r = requests.get(str(url + filename))
+# get the file from url and save to to filename
+r = requests.get(url)
 with open(filename, "wb") as code:
     code.write(r.content)
+"""
+
+# %%
+# clear the screen between download messages
+def clear():
+    """
+    clear screen while executing in terminal
+    https://www.geeksforgeeks.org/clear-screen-python/
+    """
+    # for windows
+    if name == "nt":
+        _ = system("cls")
+
+    # for mac and linux(here, os.name is 'posix')
+    else:
+        _ = system("clear")
+
 
 # %%
 # get all the .kml files and save them in a folder called smoke_kml, sorted by month
@@ -33,40 +52,42 @@ years = range(2009, 2021)
 months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 
+counter = 0
+# limit to 5 file loops for now
 for year in years:
     year = str(year)
     for month in months:
         month = str(month)
         for day in days:
-            day = str(day)
-            the_url = (
-                base_url
-                + year
-                + "/"
-                + month
-                + "/"
-                + day
-                + "/"
-                + "smoke"
-                + year
-                + month
-                + day
-                + ".kml"
-            )
-            filename = "smoke" + year + month + day + ".kml"
+            if counter <= 5:
+                day = str(day)
+                url = (
+                    base_url
+                    + year
+                    + "/"
+                    + month
+                    + "/"
+                    + "smoke"
+                    + year
+                    + month
+                    + day
+                    + ".kml"
+                )
+                filename = (
+                    "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke"
+                    + year
+                    + "/"
+                    + "smoke"
+                    + year
+                    + month
+                    + day
+                    + ".kml"
+                )
 
-# %%
-base_url = (
-    "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/"
-)
-
-years = range(2005, 2021)
-months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
-
-for year in years:
-    year = str(year)
-    for month in months:
-        print(base_url + year + "/" + month + "/")
+                counter += 1
+                print("successfully downloaded " + str(counter) + " kml files")
+                time.sleep(1)
+                clear()
 
 
 # %%
