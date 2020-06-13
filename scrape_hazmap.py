@@ -14,35 +14,48 @@
 import requests
 import urllib
 import time
-
+import bs4
 
 # %%
+# test run for a single case
 url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2018/08/"
-filename = "smoke20180801.kml"  # or specify the whole path
+filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2009/big_smokey.kml"  # or specify the whole path
 
-
-# downloading with requests
-
-# import the requests library
-import requests
-
-
-# download the file contents in binary format
-r = requests.get(url)
-
-# open method to open a file on your system and write the contents
+r = requests.get(str(url + filename))
 with open(filename, "wb") as code:
     code.write(r.content)
 
+# %%
+# get all the .kml files and save them in a folder called smoke_kml, sorted by month
+base_url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/"
+
+years = range(2009, 2021)
+months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
+
+for year in years:
+    year = str(year)
+    for month in months:
+        month = str(month)
+        for day in days:
+            day = str(day)
+            the_url = (
+                base_url
+                + year
+                + "/"
+                + month
+                + "/"
+                + day
+                + "/"
+                + "smoke"
+                + year
+                + month
+                + day
+                + ".kml"
+            )
+            filename = "smoke" + year + month + day + ".kml"
 
 # %%
-
-
-# %%
-
-
-# %%
-# Loop through all urls with smoke shapefiles in them
 base_url = (
     "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/"
 )
