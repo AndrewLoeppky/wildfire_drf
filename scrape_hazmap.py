@@ -18,7 +18,7 @@ from os import system, name
 
 # %%
 # test run for a single case (august 1 2018)
-
+"""
 # url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/01/smoke20090101.kml"
 # filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20090101.kml"
 
@@ -42,10 +42,11 @@ elif str(r) == "<Response [404]>":
 else:
     print("Crashed at date = [date]")
     # break
-
+"""
 
 # %%
-# get all the .kml files and save them in a folder called smoke_kml, sorted by month
+# get all the .kml files and save them in a folder called smoke_kml, sorted by year
+# note: currently cannot handle .gz zip files... a task for tomorrow i guess
 base_url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/"
 
 years = range(2011, 2021)
@@ -54,13 +55,12 @@ days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 3
 
 parsecounter = 0
 dwldcounder = 0
-# limit to a year of files for now
 for year in years:
     year = str(year)
     for month in months:
         month = str(month)
         for day in days:
-            if parsecounter <= 365:
+            if parsecounter <= 10000:  # hard limit ~ 25 years
                 day = str(day)
 
                 # make variables that match website conventions
@@ -115,3 +115,5 @@ for year in years:
 
 
 # %%
+# get all the
+
