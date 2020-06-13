@@ -18,15 +18,28 @@ from os import system, name
 
 # %%
 # test run for a single case (august 1 2018)
-"""
-url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2018/08/smoke20180801.kml"
-filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20180801.kml"  # or specify the whole path
+# url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/01/smoke20090101.kml"
+# filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20090101.kml"
 
-# get the file from url and save to to filename
+url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2018/08/smoke20180801.kml"
+filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20180801.kml"
+
 r = requests.get(url)
-with open(filename, "wb") as code:
-    code.write(r.content)
-"""
+r = str(r)
+# get the file from url and save to to filename
+if r == "<Response [200]":
+    print("theres something here")
+
+elif r == "<Response [404]>":
+    print("theres nothing here")
+
+else:
+    print("something is wrong")
+
+#
+# with open(filename, "wb") as code:
+#    code.write(r.content)
+
 
 # %%
 # clear the screen between download messages
@@ -53,14 +66,16 @@ months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 
 counter = 0
-# limit to 5 file loops for now
+# limit to a year of files for now
 for year in years:
     year = str(year)
     for month in months:
         month = str(month)
         for day in days:
-            if counter <= 5:
+            if counter <= 365:
                 day = str(day)
+
+                # make variables that match website conventions
                 url = (
                     base_url
                     + year
@@ -84,6 +99,12 @@ for year in years:
                     + ".kml"
                 )
 
+                # download and save
+                r = requests.get(url)
+                with open(filename, "wb") as code:
+                    code.write(r.content)
+
+                # housekeeping
                 counter += 1
                 print("successfully downloaded " + str(counter) + " kml files")
                 time.sleep(1)
