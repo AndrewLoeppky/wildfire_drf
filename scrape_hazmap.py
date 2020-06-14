@@ -14,50 +14,54 @@
 import requests
 import urllib
 import time
-from os import system, name
 import gzip
+import shutil
 
 # %%
 # test run for a single case (july 29 2009)
-
-# url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/01/smoke20090101.kml"
-# filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20090101.kml"
+"""
+# url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2011/08/smoke20110801.kml"
+# filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2011/smoke20110801.kml"
 
 url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/07/smoke20090729.kml"
 filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2009/smoke20090729.kml"
 
 # if the file exists, download and save
+# note status code 200 = file exists
+# 404 = file does not exist
 r = requests.get(url)
 
-if str(r) == "<Response [200]>":
+if r.status_code == 200:
     with open(filename, "wb") as code:
         code.write(r.content)
     # dwldcounder += 1
     print("Downloading KML for date = [date]")
     print("url = " + url)
 
-elif str(r) == "<Response [404]>":
+# catch case for zipped files (.gz), or ignore them if they don't exist
+elif r.status_code != 200:
     url = url + ".gz"
     r = requests.get(url)
-    if str(r) == "<Response [200]>":
-        with gzip.open(filename, "wb") as code:
-            code.write(r.content)
+    if r.status_code == 200:
+        with open(filename, "wb") as code:
+            code.write(gzip.decompress(r.content))
         print("Downloading KML for date = [date]")
         print("url = " + url)
     else:
         print("No files found at [date]")
 
+# this shouldnt ever happen
 else:
+    print("status code " + str(r.status_code))
     print("Crashed at date = [date]")
     # break
-
+"""
 
 # %%
 # get all the .kml files and save them in a folder called smoke_kml, sorted by year
-# note: currently cannot handle .gz zip files... a task for tomorrow i guess
 base_url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/"
 
-years = range(2011, 2021)
+years = range(2009, 2021)
 months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 
@@ -98,7 +102,7 @@ for year in years:
                 # if the file exists, download and save
                 r = requests.get(url)
 
-                if str(r) == "<Response [200]>":
+                if r.status_code == 200:
                     with open(filename, "wb") as code:
                         code.write(r.content)
                     dwldcounder += 1
@@ -107,10 +111,31 @@ for year in years:
                     )
                     print("url = " + url)
 
-                elif str(r) == "<Response [404]>":
-                    print("No file found at date = " + year + "/" + month + "/" + day)
-                    print("url = " + url)
+                # check if files are zipped (.gz) and extract
+                elif r.status_code != 200:
+                    url = url + ".gz"
+                    r = requests.get(url)
+                    if r.status_code == 200:
+                        with open(filename, "wb") as code:
+                            code.write(gzip.decompress(r.content))
+                        dwldcounder += 1
+                        print(
+                            "Downloading KML for date = "
+                            + year
+                            + "/"
+                            + month
+                            + "/"
+                            + day
+                        )
+                        print("url = " + url)
 
+                    else:
+                        print(
+                            "No file found at date = " + year + "/" + month + "/" + day
+                        )
+                        print("url = " + url)
+
+                # this shouldnt happen
                 else:
                     print("Crashed at date = " + year + "/" + month + "/" + day)
                     break
