@@ -57,10 +57,13 @@ else:
 
 
 # %%
+# =================================================================================
+#                                         KML
+# =================================================================================
 # get all the .kml files and save them in a folder called smoke_kml, sorted by year
 base_url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/"
 
-years = range(2017, 2021)
+years = range(2009, 2021)
 months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 
@@ -147,4 +150,107 @@ for year in years:
 
 
 # %%
-# get all the
+# ========================================================================================
+#                                         SHAPEFILES
+# ========================================================================================
+# get all the shapefiles files and save them in a folder called shapefile_smoke_polygons,
+# sorted by year
+# the file types are .dbf .shp .shx
+base_url = (
+    "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/"
+)
+
+years = range(2005, 2021)
+months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
+extentions = [".dbf", ".shp", ".shx"]
+
+parsecounter = 0
+dwldcounder = 0
+for year in years:
+    year = str(year)
+    for month in months:
+        month = str(month)
+        for day in days:
+            day = str(day)
+            for ext in extentions:
+                # make variables that match website conventions
+                url = (
+                    base_url
+                    + year
+                    + "/"
+                    + month
+                    + "/"
+                    + "hms_smoke"
+                    + year
+                    + month
+                    + day
+                    + ext
+                )
+                filename = (
+                    "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke"
+                    + year
+                    + "/"
+                    + "smoke"
+                    + year
+                    + month
+                    + day
+                    + ext
+                )
+
+                # if the file exists, download and save
+                r = requests.get(url)
+
+                if r.status_code == 200:
+                    with open(filename, "wb") as code:
+                        code.write(r.content)
+                    dwldcounder += 1
+                    print(
+                        "Downloading "
+                        + ext
+                        + " for date = "
+                        + year
+                        + "/"
+                        + month
+                        + "/"
+                        + day
+                    )
+                    print("url = " + url)
+
+                # check if files are zipped (.gz) and extract
+                elif r.status_code != 200:
+                    url = url + ".gz"
+                    r = requests.get(url)
+                    if r.status_code == 200:
+                        with open(filename, "wb") as code:
+                            code.write(gzip.decompress(r.content))
+                        dwldcounder += 1
+                        print(
+                            "Downloading "
+                            + ext
+                            + " date = "
+                            + year
+                            + "/"
+                            + month
+                            + "/"
+                            + day
+                        )
+                        print("url = " + url)
+
+                    else:
+                        print(
+                            "No file found at date = " + year + "/" + month + "/" + day
+                        )
+                        print("url = " + url)
+
+                # this shouldnt happen
+                else:
+                    print("Crashed at date = " + year + "/" + month + "/" + day)
+                    break
+
+                # housekeeping
+                parsecounter += 1
+                print(str(parsecounter) + " files parsed")
+                print(str(dwldcounder) + " files downloaded\n")
+                time.sleep(1)
+
