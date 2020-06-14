@@ -253,4 +253,3 @@ for year in years:
                 print(str(parsecounter) + " files parsed")
                 print(str(dwldcounder) + " files downloaded\n")
                 time.sleep(1)
-
