@@ -15,10 +15,11 @@ import requests
 import urllib
 import time
 from os import system, name
+import gzip
 
 # %%
-# test run for a single case (august 1 2018)
-"""
+# test run for a single case (july 29 2009)
+
 # url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/01/smoke20090101.kml"
 # filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2018/smoke20090101.kml"
 
@@ -36,13 +37,20 @@ if str(r) == "<Response [200]>":
     print("url = " + url)
 
 elif str(r) == "<Response [404]>":
-    print("No file found at date = [date]")
-    print("url = " + url)
+    url = url + ".gz"
+    r = requests.get(url)
+    if str(r) == "<Response [200]>":
+        with gzip.open(filename, "wb") as code:
+            code.write(r.content)
+        print("Downloading KML for date = [date]")
+        print("url = " + url)
+    else:
+        print("No files found at [date]")
 
 else:
     print("Crashed at date = [date]")
     # break
-"""
+
 
 # %%
 # get all the .kml files and save them in a folder called smoke_kml, sorted by year
@@ -116,4 +124,3 @@ for year in years:
 
 # %%
 # get all the
-
