@@ -18,13 +18,12 @@ import gzip
 import shutil
 
 # %%
-# test run for a single case (july 29 2009)
-"""
-# url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2011/08/smoke20110801.kml"
-# filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2011/smoke20110801.kml"
+# test run for a single case (july 1 2014)
+# the file types are .dbf .shp .shx
+#  sometimes they are available all together as a .zip but this is redundant
 
-url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/2009/07/smoke20090729.kml"
-filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/kml_smoke_polygons/smoke2009/smoke20090729.kml"
+url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/2014/07/hms_smoke20140701.dbf"
+filename = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2014/smoke20140701.dbf"
 
 # if the file exists, download and save
 # note status code 200 = file exists
@@ -35,7 +34,7 @@ if r.status_code == 200:
     with open(filename, "wb") as code:
         code.write(r.content)
     # dwldcounder += 1
-    print("Downloading KML for date = [date]")
+    print("Downloading dbf for date = [date]")
     print("url = " + url)
 
 # catch case for zipped files (.gz), or ignore them if they don't exist
@@ -45,7 +44,7 @@ elif r.status_code != 200:
     if r.status_code == 200:
         with open(filename, "wb") as code:
             code.write(gzip.decompress(r.content))
-        print("Downloading KML for date = [date]")
+        print("Downloading sfb for date = [date]")
         print("url = " + url)
     else:
         print("No files found at [date]")
@@ -55,13 +54,13 @@ else:
     print("status code " + str(r.status_code))
     print("Crashed at date = [date]")
     # break
-"""
+
 
 # %%
 # get all the .kml files and save them in a folder called smoke_kml, sorted by year
 base_url = "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/KML/"
 
-years = range(2009, 2021)
+years = range(2017, 2021)
 months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 
