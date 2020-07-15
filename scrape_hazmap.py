@@ -160,7 +160,7 @@ base_url = (
     "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/"
 )
 
-years = range(2005, 2021)
+years = range(2012, 2021)
 months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 days = ["01", "02", "03", "04", "05", "06", "07", "08", "09"] + list(range(10, 32))
 extentions = [".dbf", ".shp", ".shx"]
@@ -253,3 +253,6 @@ for year in years:
                 print(str(parsecounter) + " files parsed")
                 print(str(dwldcounder) + " files downloaded\n")
                 time.sleep(1)
+
+
+# %%
