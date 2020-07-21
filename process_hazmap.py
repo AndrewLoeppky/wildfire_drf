@@ -6,17 +6,31 @@
 
 import geopandas as gpd
 import numpy as np
+import shapely
 from matplotlib import pyplot as plt
 
-
-the_file = gpd.read_file(
-    "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2012/smoke20120703.shx"
+# read in a .shp
+the_file = gpd.GeoDataFrame.from_file(
+    "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180808.shp"
 )
 
+# choose some coords to compare it to (make this a function later)
+waskesiu = (53.914, -106.070)
+
+the_site = waskesiu
+window_size = 10
+ax1 = the_file.plot(column="Density")
+ax1.set_xlim([the_site[1] - (window_size // 2), the_site[1] + (window_size // 2)])
+ax1.set_ylim([the_site[0] - (window_size // 2), the_site[0] + (window_size // 2)])
+fig = plt.gcf()
+fig.set_size_inches(10, 10)
+fig.savefig("C:/Users/Owner/Wildfire_Smoke_Mckendry/data/plots/sample_plot.png")
+
+"""
 the_file.plot(column="Density")
 plt.show()
 
-"""
+
 light_smoke = the_file[the_file["Density"] == "5.000"]
 med_smoke = the_file[the_file["Density"] == "16.000"]
 heavy_smoke = the_file[the_file["Density"] == "27.000"]
