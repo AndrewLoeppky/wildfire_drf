@@ -19,9 +19,18 @@ waskesiu = (53.914, -106.070)
 
 the_site = waskesiu
 window_size = 10
-ax1 = the_file.plot(column="Density")
-ax1.set_xlim([the_site[1] - (window_size // 2), the_site[1] + (window_size // 2)])
-ax1.set_ylim([the_site[0] - (window_size // 2), the_site[0] + (window_size // 2)])
+ax = the_file.plot(column="Density")
+ax.set_xlim([the_site[1] - (window_size // 2), the_site[1] + (window_size // 2)])
+ax.set_ylim([the_site[0] - (window_size // 2), the_site[0] + (window_size // 2)])
+ax.text(
+    0.5,
+    0.5,
+    "x\n        Waskesiu",
+    verticalalignment="top",
+    horizontalalignment="left",
+    transform=ax.transAxes,
+    fontsize=15,
+)
 fig = plt.gcf()
 fig.set_size_inches(10, 10)
 fig.savefig("C:/Users/Owner/Wildfire_Smoke_Mckendry/data/plots/sample_plot.png")
