@@ -83,10 +83,10 @@ def make_plot(site, file):
     ax.set_xlabel("longitude")
     ax.set_ylabel("latitude")
     fig = plt.gcf()
-    fig.set_size_inches(10, 10)
+    # fig.set_size_inches(10, 10)
     # fig.savefig("C:/Users/Owner/Wildfire_Smoke_Mckendry/data/plots/sample_plot.png")
 
-    return fig,
+    return ax,
 
 def make_frame(site, file):
     
