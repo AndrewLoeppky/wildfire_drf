@@ -111,6 +111,11 @@ def make_frame(file):
 #    fargs=None, save_count=None, *, cache_frame_data=True, **kwargs)
 """
 
+
+#############################################################
+#             this will become "__main__"
+#############################################################
+
 # initialize a file generator and get the first file
 file_generator = gen_file(years, months, days)
 the_file = next(file_generator)
@@ -128,6 +133,7 @@ writer = Writer(fps=15, metadata=dict(artist="Me"), bitrate=1800)
 
 # make and save the animation
 anim = FuncAnimation(fig, make_frame, frames=100, interval=200)
+
 
 # further code to plot AOD beside map (to be completed)
 """

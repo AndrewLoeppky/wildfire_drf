@@ -23,6 +23,7 @@ dependencies:
   - cycler=0.10.0=py_2
   - descartes=1.1.0=py_4
   - expat=2.2.9=he025d50_2
+  - ffmpeg=4.3=ha925a31_1
   - fiona=1.8.13=py37hef9e828_1
   - freetype=2.10.2=hd328e21_0
   - freexl=1.0.5=hd288d7e_1002
@@ -78,7 +79,7 @@ dependencies:
   - mypy_extensions=0.4.3=py37hc8dfbb8_1
   - numpy=1.18.5=py37hae9e721_0
   - openjpeg=2.3.1=h57dd2e7_3
-  - openssl=1.1.1g=he774522_0
+  - openssl=1.1.1g=he774522_1
   - pandas=1.0.5=py37h3bbf574_0
   - pathspec=0.8.0=pyh9f0ad1d_0
   - pcre=8.44=h6538335_0
