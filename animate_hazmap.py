@@ -54,11 +54,14 @@ def init(the_site):
     '''
     the_gen = gen_file()
     init_file = add_site(the_site, next(the_gen))
+    return init_file
 
 
 def main():
     waskesiu = (53.914, -106.070)
-    init(waskesiu)
+    init_file = init(waskesiu)
+
+    print(init_file)
    
 
 if __name__ == "__main__":
