@@ -17,7 +17,7 @@ def main():
 
     fig = plt.figure()
     ax = geoplot.polyplot(the_file)
-    fig.show()
+    ax.show()
 
 if __name__ == "__main__":
     main()

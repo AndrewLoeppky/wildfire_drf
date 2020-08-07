@@ -40,7 +40,7 @@ wask_tot_20 = 0
 
 # test longer dataset
 long_test = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu_long_test10.csv', skiprows=6)
-"""
+""";
 
 
 # %%
@@ -153,3 +153,6 @@ def main(dataset):
 
 # %%
 main(wask_aod_test_10)
+
+
+# %%
