@@ -1,3 +1,4 @@
+# %%
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %% [markdown]
@@ -12,9 +13,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
-import scipy
+#import scipy
 import datetime
 import time
+import os
 
 
 # %%
@@ -27,7 +29,7 @@ wask_aod_test_10 = pd.read_csv(
 wask_aod_test_15 = pd.read_csv(
     "C:/Users/Owner/Wildfire_Smoke_Mckendry/code/Waskesiu_lev15.csv", skiprows=6
 )
-"""
+
 # full length sets (1993-2020)
 wask_aod_10 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu10.csv', skiprows=6)
 wask_aod_15 = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu15.csv', skiprows=6)
@@ -40,7 +42,6 @@ wask_tot_20 = 0
 
 # test longer dataset
 long_test = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu_long_test10.csv', skiprows=6)
-""";
 
 
 # %%
@@ -145,14 +146,29 @@ def timeit(method):
 
 
 # %%
+def save_dataset(dataset, cols=["AOD_500nm"]):
+    """
+    saves pd dataframe as a .csv in the local directory, or modify this to include a path
+    default includes only datetime and 500nm optical depth, add data to arg "cols" as needed
+    """
+    save_data = pd.DataFrame()
+    save_data["datetime"] = dataset["datetime"]
+    for col in cols:
+        save_data[col] = dataset[col]
+    os.remove("aeronet_aod.csv") # delete the old file
+    save_data.to_csv("aeronet_aod.csv") # save the current one
+
+
+# %%
 @timeit
 def main(dataset):
     scrub_aeronet(dataset)
     plot_aod(dataset)
+    save_dataset(dataset)
 
 
 # %%
-main(wask_aod_test_10)
+main(wask_aod_15)
 
 
 # %%
