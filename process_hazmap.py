@@ -125,14 +125,14 @@ waskesiu = (53.914, -106.070)
 # add site to dile and generate the initial plot with which to animate
 the_file = add_site(waskesiu, the_file)
 fig, ax = make_plot(waskesiu, the_file)
-# fig.savefig("C:/Users/Owner/Wildfire_Smoke_Mckendry/data/plots/sample_plot.png")
+fig.savefig("C:/Users/Owner/Wildfire_Smoke_Mckendry/data/plots/sample_plot.png")
 
 # initialize a video writer
-Writer = animation.writers["ffmpeg"]
-writer = Writer(fps=15, metadata=dict(artist="Me"), bitrate=1800)
+#Writer = animation.writers["ffmpeg"]
+#writer = Writer(fps=15, metadata=dict(artist="Me"), bitrate=1800)
 
 # make and save the animation
-anim = FuncAnimation(fig, make_frame, frames=100, interval=200)
+#anim = FuncAnimation(fig, make_frame, frames=100, interval=200)
 
 
 # further code to plot AOD beside map (to be completed)

@@ -75,8 +75,16 @@ def reformat_datetime(dataset):
 def plot_aod(dataset):
     """Function for plotting aeronet dataset
     """
-    
-    
+    fig = plt.figure()
+    '''
+    for index in dataset.columns:
+        if index[:3] == "AOD":
+            plt.scatter(dataset['datetime'], dataset[index])
+    '''
+
+    plt.scatter(dataset['datetime'], dataset['AOD_1640nm'])
+    plt.scatter(dataset['datetime'], dataset['AOD_870nm'])
+    plt.savefig('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/sample_fig.png')
 
 
 def main():
