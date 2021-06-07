@@ -28,35 +28,50 @@
 # **make sure coordinate systems match!**
 
 from matplotlib import pyplot as plt
+import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 # %matplotlib inline
 
 # +
-## generate a geodataframe of field site(s)
+###########################################################################
+############## generate a geodataframe of field site(s) ###################
+###########################################################################
 
 # lat/lon of field site (just wask for now)
-site_lat, site_lon =  53.91439, -106.06958
+site_lat, site_lon = 53.91439, -106.06958  # waskesiu
 
-# display the site as a point
+# convert site to shapely point
 polygon_geom = Point((site_lon, site_lat))
-crs = {'init': 'EPSG:4326'}
-the_site = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom]);
+crs = {"init": "EPSG:4326"}
+the_site = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
+the_site = the_site.to_crs(epsg=4326)
 
-# how big to display a plot
-disp_size = 50 # degrees
-sizeparam = disp_size / 2
+# set size limits for plot
+disp_width = 50  # degrees
+disp_height = 30  # degrees
+disp_width /= 2
+disp_height /= 2
 
 # create the boundary box of specified size
-lat_point_list = [site_lat + sizeparam, site_lat + sizeparam, site_lat - sizeparam, site_lat - sizeparam]
-lon_point_list = [site_lon - sizeparam, site_lon + sizeparam, site_lon + sizeparam, site_lon - sizeparam]
-
+lat_point_list = [
+    site_lat + disp_height,
+    site_lat + disp_height,
+    site_lat - disp_height,
+    site_lat - disp_height,
+]
+lon_point_list = [
+    site_lon - disp_width,
+    site_lon + disp_width,
+    site_lon + disp_width,
+    site_lon - disp_width,
+]
 polygon_geom = Polygon(zip(lon_point_list, lat_point_list))
-crs = {'init': 'EPSG:4326'}
-plot_bbox = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom]);
+crs = {"init": "EPSG:4326"}
+plot_bbox = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
 
-# projection to newer syntax
-plot_bbox = plot_bbox.to_crs(epsg=4326) 
+# change projection attribute to newer syntax
+plot_bbox = plot_bbox.to_crs(epsg=4326)
 # -
 
 
@@ -65,9 +80,12 @@ path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_poly
 
 # +
 the_file = gpd.read_file(path_to_file)
+
+# complicated way to assign the data a projection
 the_file.crs = {'init' :'epsg:4326'}
 the_file = the_file.to_crs(epsg=4326)
 the_file = gpd.clip(the_file, plot_bbox)
+the_file.reset_index(inplace=True, drop=True)
 
 # get the light smoke
 light_smoke = the_file[the_file["Density"] == 5.0]
@@ -84,9 +102,9 @@ world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 world = gpd.clip(world, plot_bbox)
 
 # +
-fig, ax = plt.subplots(figsize=(15,7))
+fig, ax = plt.subplots(figsize=(10,5))
 
-ax.set_aspect("equal")
+#ax.set_aspect("equal")
 world.plot(ax=ax, color='grey')
 light_smoke.plot(ax=ax, color="yellow", alpha=0.5)
 med_smoke.plot(ax=ax, color="orange", alpha=0.5)
@@ -94,20 +112,19 @@ heavy_smoke.plot(ax=ax, color="red", alpha=0.5)
 the_site.plot(ax=ax, marker='*')
 
 plt.show()
-
-# +
-# useful methods
-covered_by(other[, align]) # for figuring out the smokey plot part
-
-
 # -
 
+# which of the smokey shapes intersect the site?
+ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
+the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
 
+# get the highest smoke level at the specified site
+try:
+    max_smoke = max(the_file[the_file['intersects'] == True]["Density"])
+except:
+    max_smoke = 0
 
-
-
-
-
+max_smoke
 
 
 
