@@ -31,6 +31,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
+import os
 # %matplotlib inline
 
 # +
@@ -126,11 +127,19 @@ except:
 
 max_smoke
 
+######################################################################################
+############## loop through all smoke data and extract level at site #################
+######################################################################################
+os.getcwd()
 
+os.chdir("../data/shapefile_smoke_polygons")
+base_path = os.getcwd()
 
+dataset_years = os.listdir()
 
-
-
-
-
+for year in dataset_years:
+    the_path = base_path + "\\" + year
+    print(f'Processing data in {the_path}')
+    os.chdir(the_path)
+    [print(the_path + '\\' + file) for file in os.listdir() if file[-3:] == "shp"]
 
