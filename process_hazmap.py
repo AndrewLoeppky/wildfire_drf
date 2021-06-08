@@ -29,6 +29,7 @@
 
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import os
@@ -51,27 +52,14 @@ the_site = the_site.to_crs(epsg=4326)
 
 
 # +
-# get the smoke data
+####################################################################
+########## extract data from HMS smoke shapefiles ##################
+####################################################################
+
 path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
 date = "Aug 2/2018"
 
 the_file = gpd.read_file(path_to_file)
-
-# complicated way to assign the data a projection
-the_file.crs = {'init' :'epsg:4326'}
-the_file = the_file.to_crs(epsg=4326)
-the_file = gpd.clip(the_file, plot_bbox)
-the_file.reset_index(inplace=True, drop=True)
-
-# +
-###########################################################
-################ plot smoke polygons ######################
-###########################################################
-
-# divide light, med, heavy smoke shapes
-light_smoke = the_file[the_file["Density"] == 5.0]
-med_smoke = the_file[the_file["Density"] == 16.0]
-heavy_smoke = the_file[the_file["Density"] == 27.0]
 
 # set size limits for plot
 disp_width = 50  # degrees
@@ -98,6 +86,22 @@ crs = {"init": "EPSG:4326"}
 plot_bbox = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
 plot_bbox = plot_bbox.to_crs(epsg=4326)
 
+# complicated way to assign the data a projection
+the_file.crs = {'init' :'epsg:4326'}
+the_file = the_file.to_crs(epsg=4326)
+the_file = gpd.clip(the_file, plot_bbox)
+the_file.reset_index(inplace=True, drop=True)
+
+# +
+###########################################################
+################ plot smoke polygons ######################
+###########################################################
+
+# divide light, med, heavy smoke shapes
+light_smoke = the_file[the_file["Density"] == 5.0]
+med_smoke = the_file[the_file["Density"] == 16.0]
+heavy_smoke = the_file[the_file["Density"] == 27.0]
+
 # get a basemap
 world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 world = gpd.clip(world, plot_bbox)
@@ -121,25 +125,34 @@ plt.show()
 ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
 the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
 
-# +
 # get the highest smoke level at the specified site
 try:
     max_smoke = max(the_file[the_file['intersects'] == True]["Density"])
+    the_date = max(the_file[the_file['intersects'] == True])
 except:
     max_smoke = 0
-    
-max_smoke
-
 
 # +
 ######################################################################################
 ############## loop through all smoke data and extract level at site #################
 ######################################################################################
 
-# find the csv where im keeping everything
+# create a new dataframe to store the timeseries
+smoke_lvl = pd.DataFrame(columns=('date', 'smokelvl'))
 
-def save_smoke_level_in_the_csv(path_to_file):
-    pass
+def convert_datetime(the_file):
+    """
+    takes in a HMS smoke polygon (or geodataframe full of them) and returns the date
+    as a datetime object
+    """
+    year = the_file["Start"].str[0:4]
+    day = the_file["Start"].str[4:7]
+    hour = the_file["Start"].str[8:10]
+    mnt = the_file["Start"].str[10:12]
+    return pd.to_datetime(year + day + hour + mnt, format="%Y%j%H%M")
+
+def save_smoke_level_in_the_csv(path_to_file, df=smoke_lvl):
+    df = df.append({'date':1, "smokelvl":2}, ignore_index=True)
 
 
 os.chdir("../data/shapefile_smoke_polygons")
@@ -151,10 +164,22 @@ for year in dataset_years:
     os.chdir(the_path)
     [print(the_path + '\\' + file) for file in os.listdir() if file[-3:] == "shp"]
 # -
+smoke_lvl
 
+smoke_lvl['date']= [1,2,3]
+smoke_lvl['smokelvl'] = ['a','b',2]
 
+smoke_lvl.append({'date':1, "smokelvl":2}, ignore_index=True)
 
-
-
-
-
+# ## how to make this loop
+# 1) get the file for day x
+#
+# 2) change dates to my new format
+#
+# 3) for hour in day
+#     
+#     3) filter by hour, find max smoke level for that hour
+#     
+#     4) add to the dataframe year,day,hour:maxsmoke
+#
+# 5) save the whole deal as a csv
