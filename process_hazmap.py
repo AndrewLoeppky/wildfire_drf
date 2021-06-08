@@ -40,13 +40,38 @@ import os
 ###########################################################################
 
 # lat/lon of field site (just wask for now)
-site_lat, site_lon = 53.91439, -106.06958  # waskesiu
+site_lat, site_lon = 53.91439, -106.06958
+site_name = "Waskesiu"
 
 # convert site to shapely point
 polygon_geom = Point((site_lon, site_lat))
 crs = {"init": "EPSG:4326"}
 the_site = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
 the_site = the_site.to_crs(epsg=4326)
+
+
+# +
+# get the smoke data
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
+date = "Aug 2/2018"
+
+the_file = gpd.read_file(path_to_file)
+
+# complicated way to assign the data a projection
+the_file.crs = {'init' :'epsg:4326'}
+the_file = the_file.to_crs(epsg=4326)
+the_file = gpd.clip(the_file, plot_bbox)
+the_file.reset_index(inplace=True, drop=True)
+
+# +
+###########################################################
+################ plot smoke polygons ######################
+###########################################################
+
+# divide light, med, heavy smoke shapes
+light_smoke = the_file[the_file["Density"] == 5.0]
+med_smoke = the_file[the_file["Density"] == 16.0]
+heavy_smoke = the_file[the_file["Density"] == 27.0]
 
 # set size limits for plot
 disp_width = 50  # degrees
@@ -67,50 +92,27 @@ lon_point_list = [
     site_lon + disp_width,
     site_lon - disp_width,
 ]
+
 polygon_geom = Polygon(zip(lon_point_list, lat_point_list))
 crs = {"init": "EPSG:4326"}
 plot_bbox = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
-
-# change projection attribute to newer syntax
 plot_bbox = plot_bbox.to_crs(epsg=4326)
-# -
-
-
-# get the smoke data
-path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
-
-# +
-the_file = gpd.read_file(path_to_file)
-
-# complicated way to assign the data a projection
-the_file.crs = {'init' :'epsg:4326'}
-the_file = the_file.to_crs(epsg=4326)
-the_file = gpd.clip(the_file, plot_bbox)
-the_file.reset_index(inplace=True, drop=True)
-
-# get the light smoke
-light_smoke = the_file[the_file["Density"] == 5.0]
-
-# get the med smoke
-med_smoke = the_file[the_file["Density"] == 16.0]
-
-# get the heavy smoke
-heavy_smoke = the_file[the_file["Density"] == 27.0]
-# -
 
 # get a basemap
 world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 world = gpd.clip(world, plot_bbox)
 
-# +
-fig, ax = plt.subplots(figsize=(10,5))
-
-#ax.set_aspect("equal")
-world.plot(ax=ax, color='grey')
+# do the plot
+fig, ax = plt.subplots(figsize=(10,10))
+world.plot(ax=ax, color="grey")
 light_smoke.plot(ax=ax, color="yellow", alpha=0.5)
 med_smoke.plot(ax=ax, color="orange", alpha=0.5)
 heavy_smoke.plot(ax=ax, color="red", alpha=0.5)
-the_site.plot(ax=ax, marker='*')
+sitemarker = the_site.plot(ax=ax, marker="*", color="k")
+ax.text(site_lon + 0.5, site_lat + 0.5, site_name)
+ax.set_title(f"HMS Smoke Polygons for {date}")
+ax.set_xlabel("Lon (deg)")
+ax.set_ylabel("Lat (deg)")
 
 plt.show()
 # -
@@ -119,27 +121,40 @@ plt.show()
 ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
 the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
 
+# +
 # get the highest smoke level at the specified site
 try:
     max_smoke = max(the_file[the_file['intersects'] == True]["Density"])
 except:
     max_smoke = 0
-
+    
 max_smoke
 
+
+# +
 ######################################################################################
 ############## loop through all smoke data and extract level at site #################
 ######################################################################################
-os.getcwd()
+
+# find the csv where im keeping everything
+
+def save_smoke_level_in_the_csv(path_to_file):
+    pass
+
 
 os.chdir("../data/shapefile_smoke_polygons")
 base_path = os.getcwd()
-
 dataset_years = os.listdir()
-
 for year in dataset_years:
     the_path = base_path + "\\" + year
     print(f'Processing data in {the_path}')
     os.chdir(the_path)
     [print(the_path + '\\' + file) for file in os.listdir() if file[-3:] == "shp"]
+# -
+
+
+
+
+
+
 
