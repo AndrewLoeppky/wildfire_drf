@@ -155,8 +155,11 @@ def save_dataset(dataset, cols=["AOD_500nm"]):
     save_data["datetime"] = dataset["datetime"]
     for col in cols:
         save_data[col] = dataset[col]
-    os.remove("aeronet_aod.csv") # delete the old file
-    save_data.to_csv("aeronet_aod.csv") # save the current one
+    try:
+        os.remove("../data/out_data/dataaeronet_aod.csv") # delete the old file if it exists
+    except:
+        pass
+    save_data.to_csv("../data/out_data/dataaeronet_aod.csv") # save the current one
 
 
 # %%
