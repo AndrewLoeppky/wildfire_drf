@@ -25,7 +25,7 @@
 # - save a plot of the site and smoke level as a png
 #
 #
-# **make sure coordinate systems match!**
+# **make sure coordinate systems match! (they do, epsg4326)**
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -34,6 +34,7 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import os
 # %matplotlib inline
+pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # +
 ###########################################################################
@@ -119,18 +120,19 @@ ax.set_xlabel("Lon (deg)")
 ax.set_ylabel("Lat (deg)")
 
 plt.show()
-# -
 
+# +
 # which of the smokey shapes intersect the site?
-ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
-the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
+#ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
+#the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
 
+# +
 # get the highest smoke level at the specified site
-try:
-    max_smoke = max(the_file[the_file['intersects'] == True]["Density"])
-    the_date = max(the_file[the_file['intersects'] == True])
-except:
-    max_smoke = 0
+#try:
+#    max_smoke = max(the_file[the_file['intersects'] == True]["Density"])
+#    the_date = max(the_file[the_file['intersects'] == True])
+#except:
+#    max_smoke = 0
 
 # +
 ######################################################################################
@@ -140,15 +142,15 @@ except:
 # create a new dataframe to store the timeseries
 smoke_lvl = pd.DataFrame(columns=('date', 'smokelvl'))
 
-def convert_datetime(the_file):
+def convert_datetime(file, col):
     """
     takes in a HMS smoke polygon (or geodataframe full of them) and returns the date
-    as a datetime object
+    as a datetime object. col takes either "Start" or "End"
     """
-    year = the_file["Start"].str[0:4]
-    day = the_file["Start"].str[4:7]
-    hour = the_file["Start"].str[8:10]
-    mnt = the_file["Start"].str[10:12]
+    year = file[col].str[0:4]
+    day = file[col].str[4:7]
+    hour = file[col].str[8:10]
+    mnt = file[col].str[10:12]
     return pd.to_datetime(year + day + hour + mnt, format="%Y%j%H%M")
 
 def save_smoke_level_in_the_csv(path_to_file, df=smoke_lvl):
@@ -163,6 +165,7 @@ for year in dataset_years:
     print(f'Processing data in {the_path}')
     os.chdir(the_path)
     [print(the_path + '\\' + file) for file in os.listdir() if file[-3:] == "shp"]
+    #[print(file) for file in os.listdir() if file[-3:] == "shp"]    
 # -
 smoke_lvl
 
@@ -170,6 +173,7 @@ smoke_lvl['date']= [1,2,3]
 smoke_lvl['smokelvl'] = ['a','b',2]
 
 smoke_lvl.append({'date':1, "smokelvl":2}, ignore_index=True)
+
 
 # ## how to make this loop
 # 1) get the file for day x
@@ -183,3 +187,48 @@ smoke_lvl.append({'date':1, "smokelvl":2}, ignore_index=True)
 #     4) add to the dataframe year,day,hour:maxsmoke
 #
 # 5) save the whole deal as a csv
+
+# +
+def add_smokelevel(file):
+    # open the file
+    # code to open file
+    
+    # loop through each hour of the day of the file
+    year, month, day = file[5:9], file[9:11], file[11:13]
+    hours = range(24)
+    for hour in hours:
+        try:
+            curr_datetime = pd.to_datetime(year+month+day+"0"+str(hour)+"0000")
+        except OverflowError:
+            curr_datetime = pd.to_datetime(year+month+day+str(hour)+"0000")
+        #hourly_smoke = the_file[]
+        print(curr_datetime)
+
+add_smokelevel("smoke20180802.shp")
+
+# +
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
+file = "smoke20180802.shp"
+# for file in files, where files are named smokeyyyymmdd.shp, and we have the variable path_to_file defined
+
+the_file = gpd.read_file(path_to_file)
+the_file['dtstart'] =  convert_datetime(the_file, "Start")
+the_file['dtend'] = convert_datetime(the_file, "End")
+
+curr_datetime = pd.Timestamp("20180802 220000")
+
+hourly_file = the_file[the_file['dtstart'] < curr_datetime]# < the_file['dtend']] # doesnt work for some reason
+hourly_file = hourly_file[curr_datetime < hourly_file['dtend']]
+    
+hourly_file
+
+# +
+the_file['dtstart'] =  convert_datetime(the_file, "Start")
+the_file['dtend'] = convert_datetime(the_file, "End")
+
+time1 = the_file['dtstart'][0]
+time2 = the_file['dtend'][0]
+
+time3 = pd.Timestamp('2018-08-02 16:00:01')
+
+time1 < time3 < time2
