@@ -27,13 +27,16 @@
 #
 # **make sure coordinate systems match! (they do, epsg4326)**
 
+# +
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import os
+
 # %matplotlib inline
+# display all of a df
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # +
@@ -58,8 +61,6 @@ the_site = the_site.to_crs(epsg=4326)
 ####################################################################
 
 path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
-date = "Aug 2/2018"
-
 the_file = gpd.read_file(path_to_file)
 
 # set size limits for plot
@@ -92,6 +93,8 @@ the_file.crs = {'init' :'epsg:4326'}
 the_file = the_file.to_crs(epsg=4326)
 the_file = gpd.clip(the_file, plot_bbox)
 the_file.reset_index(inplace=True, drop=True)
+
+print(the_file["Density"])
 
 # +
 ###########################################################
@@ -140,7 +143,8 @@ plt.show()
 ######################################################################################
 
 # create a new dataframe to store the timeseries
-smoke_lvl = pd.DataFrame(columns=('date', 'smokelvl'))
+smoke_lvl = pd.DataFrame(columns=("date", "smokelvl"))
+
 
 def convert_datetime(file, col):
     """
@@ -153,19 +157,57 @@ def convert_datetime(file, col):
     mnt = file[col].str[10:12]
     return pd.to_datetime(year + day + hour + mnt, format="%Y%j%H%M")
 
-def save_smoke_level_in_the_csv(path_to_file, df=smoke_lvl):
-    df = df.append({'date':1, "smokelvl":2}, ignore_index=True)
+
+def reset_path():
+    """
+    changes directory to where this notebook is stored (dont overthink it)
+    """
+    os.chdir("C:\\Users\\Owner\\Wildfire_Smoke_Mckendry\\code")
 
 
+# def save_smoke_level_in_the_csv(path_to_file, df=smoke_lvl):
+#    df = df.append({'date':1, "smokelvl":2}, ignore_index=True)
+
+
+def parse_file(filepath, filename):
+    # get file and date
+    the_file = gpd.read_file(filepath)
+    print(the_file["Density"])
+    year, month, day = filename[5:9], filename[9:11], filename[11:13]
+
+    """
+    # convert to datetime format
+    the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"])
+    the_file["End"] = pd.to_datetime(year + month + day + the_file["End"])
+
+    # loop through each hour of the day of the file
+    hours = range(24)
+    for hour in hours:
+        # get the "current" datetime
+        try:
+            curr_datetime = pd.to_datetime(
+                year + month + day + "0" + str(hour) + "0000"
+            )
+        except OverflowError:
+            curr_datetime = pd.to_datetime(year + month + day + str(hour) + "0000")
+        
+        # filter the df by hour
+        hourly_file = the_file[the_file["Start"] < curr_datetime]
+        hourly_file = hourly_file[curr_datetime < hourly_file["End"]]
+        print(curr_datetime,"---------------------------------------------------------------------------------")
+        print(hourly_file)
+    """
+
+reset_path()
 os.chdir("../data/shapefile_smoke_polygons")
 base_path = os.getcwd()
 dataset_years = os.listdir()
 for year in dataset_years:
     the_path = base_path + "\\" + year
-    print(f'Processing data in {the_path}')
+    print(f"Processing data in {the_path}")
     os.chdir(the_path)
-    [print(the_path + '\\' + file) for file in os.listdir() if file[-3:] == "shp"]
-    #[print(file) for file in os.listdir() if file[-3:] == "shp"]    
+    # do the big loop
+    [parse_file((the_path + "\\" + file), file) for file in os.listdir() if file[-3:] == "shp"]
 # -
 smoke_lvl
 
@@ -176,17 +218,18 @@ smoke_lvl.append({'date':1, "smokelvl":2}, ignore_index=True)
 
 
 # ## how to make this loop
-# 1) get the file for day x
 #
-# 2) change dates to my new format
+# * [x] get the file for day x
 #
-# 3) for hour in day
+# - [ ] change dates to my new format
+#
+# - [ ] for hour in day
 #     
-#     3) filter by hour, find max smoke level for that hour
+#     3) [ ] filter by hour, find max smoke level for that hour
 #     
-#     4) add to the dataframe year,day,hour:maxsmoke
+#     4) [ ] add to the dataframe year,day,hour:maxsmoke
 #
-# 5) save the whole deal as a csv
+# - [ ] save the whole deal as a csv
 
 # +
 def add_smokelevel(file):
