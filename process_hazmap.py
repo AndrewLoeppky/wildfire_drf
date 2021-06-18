@@ -61,7 +61,7 @@ the_site = the_site.to_crs(epsg=4326)
 ####################################################################
 
 path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
-path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2009/smoke20090727.shp"
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2015/smoke20150727.shp"
 
 
 the_file = gpd.read_file(path_to_file)
@@ -141,53 +141,60 @@ plt.show()
 ######################################################################################
 
 
-
 def reset_path():
     """
     changes directory to where this notebook is stored (dont overthink it)
     """
     os.chdir("C:\\Users\\Owner\\Wildfire_Smoke_Mckendry\\code")
-    
+
+
 def get_max(arg):
     """
-    returns the maximum of a sequence, or 0 if the sequence is empty
+    returns the maximum of a sequence, or 0 if the sequence is empty or None
     """
     try:
         the_max = max(arg)
-    except ValueError: # in case it is empty
+    except ValueError:  # in case it is empty
         the_max = 0
-    except TypeError: 
+    except TypeError:
         the_max = 0
     if the_max == None:
         return 0
     else:
         return the_max
 
-    
-def parse_file(filepath, filename, smoke_lvl):
+
+def parse_file(filepath, filename):
     # get file and date
-    #try:
     the_file = gpd.read_file(filepath)
-    #except CPLE_OpenFailedError:
-    #    pass
-    #print(f"{filename}: {the_file.columns.values}")
     year, month, day = filename[5:9], filename[9:11], filename[11:13]
     
     # filter for polygons that intersect site
     ign, locs = the_file.sindex.query_bulk(the_site["geometry"], predicate="intersects")
-    the_file['intersects'] = np.isin(np.arange(0, len(the_file)), locs)
+    the_file["intersects"] = np.isin(np.arange(0, len(the_file)), locs)
     the_file = the_file[the_file["intersects"] == True]
 
-    # add a density column if necessary
+    # add a density column if necessary (pre 2008 files lack them)
     if "Density" not in the_file.columns.values:
-        the_file["Density"] = 1 # code for ambiguous smoke level as per pre 2008 data
+        the_file["Density"] = 1.000  # code for ambiguous smoke level
         
-    # convert to datetime format
-    the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"])
-    the_file["End"] = pd.to_datetime(year + month + day + the_file["End"])
+    # convert datetime format
+    try:
+        the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"])
+        the_file["End"] = pd.to_datetime(year + month + day + the_file["End"])
+    except:
+        # handle alternate (bad) time formatting
+        the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"][:-4])
+        the_file["End"] = pd.to_datetime(year + month + day + the_file["End"][:-4])
 
+        
     # loop through each hour of the day of the file
-    def do_hourloop(hour, smoke_lvl):
+    def do_hourloop(hour, file=the_file):
+        """
+        takes in an int "hour" from 0 to 23 and geodataframe "file",
+        generates a datetime object with the year month day hour,
+        calculates the smoke level at the hour specified 
+        """
         # get the "current" datetime
         try:
             curr_datetime = pd.to_datetime(
@@ -195,39 +202,55 @@ def parse_file(filepath, filename, smoke_lvl):
             )
         except OverflowError:
             curr_datetime = pd.to_datetime(year + month + day + str(hour) + "0000")
-        
+
         # filter the df by hour
         hourly_file = the_file[the_file["Start"] < curr_datetime]
-        hourly_file = hourly_file[curr_datetime < hourly_file["End"]] 
-        
-        smoke_lvl = smoke_lvl.append(
-            {'date':curr_datetime, 
-            "smokelvl":get_max(hourly_file["Density"].values)}, 
-            ignore_index=True
-        )
-    
+        hourly_file = hourly_file[curr_datetime < hourly_file["End"]]
+
+        # save data to the pandas df
+        dt, smk = curr_datetime, get_max(hourly_file["Density"].values)
+        print(dt, smk)
+
     # execute the loop in a LC
     hours = range(24)
-    [do_hourloop(hour, smoke_lvl) for hour in hours]
-    
+    [do_hourloop(hour) for hour in hours]
+# +
+## the main event ##
 reset_path()
 os.chdir("../data/shapefile_smoke_polygons")
 base_path = os.getcwd()
 dataset_years = os.listdir()
+dataset_years = os.listdir()[-2:] ########################## testing only ################3
+
+# some days contain errors
+glitch_days = {"smoke20140326.shp", # CPLE_OpenFailedError 
+               "smoke20150120.shp", # CPLE
+               "smoke20150125.shp", # KeyError
+               "smoke20190529.shp"  # ParserError (a new one..)
+              }
 
 # create a new dataframe to store the timeseries
-smoke_lvl = pd.DataFrame(columns=("date", "smokelvl"))
+smoke_lvl = pd.DataFrame(columns=("datetime", "smoke_lvl"))
 
 for year in dataset_years:
     the_path = base_path + "\\" + year
     print(f"Processing data in {the_path}")
     os.chdir(the_path)
     # do the big loop
-    [parse_file((the_path + "\\" + file), file, smoke_lvl) for file in os.listdir() if file[-3:] == "shp" if file != "smoke20140326.shp" if file !="smoke20150120.shp"]
+    [parse_file((the_path + "\\" + file), file) for file in os.listdir()
+                                                if file[-3:] == "shp" 
+                                                if file not in glitch_days]
+                                                   
 
-smoke_lvl
+# +
+## Testing zone
+smoke_lvl = pd.DataFrame(columns=("datetime", "smoke_lvl"))
+
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2019/smoke20190529.shp"
+file = path_to_file[-17:]
+
+parse_file(path_to_file, file)
 # -
-smoke_lvl
 
 smoke_lvl['date']= [1,2,3]
 smoke_lvl['smokelvl'] = ['a','b',2]
@@ -245,15 +268,17 @@ smoke_lvl
 #
 # - [x] for hour in day
 #     
-#     3) [ ] filter by hour, find max smoke level for that hour
+#     3) [x] filter by hour, find max smoke level for that hour
 #     
 #     4) [ ] add to the dataframe year,day,hour:maxsmoke
 #
 # - [ ] save the whole deal as a csv
 
-mylist = ["4","2",4]
-max(mylist)
+reset_path()
+os.chdir("../data/shapefile_smoke_polygons")
+base_path = os.getcwd()
+os.listdir()[-3:]
 
-
+"201706252017177 0130"[-4:]
 
 
