@@ -60,8 +60,8 @@ the_site = the_site.to_crs(epsg=4326)
 ########## extract data from HMS smoke shapefiles ##################
 ####################################################################
 
-path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180802.shp"
-path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2015/smoke20150727.shp"
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180803.shp"
+#path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2015/smoke20150727.shp"
 
 
 the_file = gpd.read_file(path_to_file)
@@ -96,12 +96,12 @@ the_file.crs = {'init' :'epsg:4326'}
 the_file = the_file.to_crs(epsg=4326)
 the_file = gpd.clip(the_file, plot_bbox)
 the_file.reset_index(inplace=True, drop=True)
-# -
 
+# +
 ###########################################################
 ################ plot smoke polygons ######################
 ###########################################################
-'''
+
 # divide light, med, heavy smoke shapes
 try:
     light_smoke = the_file[the_file["Density"] == 5.0]
@@ -125,15 +125,18 @@ world.plot(ax=ax, color="grey")
 light_smoke.plot(ax=ax, color="yellow", alpha=0.5)
 med_smoke.plot(ax=ax, color="orange", alpha=0.5)
 heavy_smoke.plot(ax=ax, color="red", alpha=0.5)
-ambg_smoke.plot(ax=ax, color="lightblue", alpha=0.5)
+try:
+    ambg_smoke.plot(ax=ax, color="lightblue", alpha=0.5)
+except NameError:
+    pass
 sitemarker = the_site.plot(ax=ax, marker="*", color="k")
 ax.text(site_lon + 0.5, site_lat + 0.5, site_name)
 ax.set_title(f"HMS Smoke Polygons")
 ax.set_xlabel("Lon (deg)")
 ax.set_ylabel("Lat (deg)")
+ax.text(site_lon-25, site_lat+15.5, "the date")
 
 plt.show()
-'''
 
 # +
 ######################################################################################
@@ -178,8 +181,7 @@ def parse_file(filepath, filename):
     if "Density" not in the_file.columns.values:
         the_file["Density"] = 1.000  # code for ambiguous smoke level
         
-    # convert datetime format
-    print(type(the_file["Start"]))
+    # convert datetime format -- ##this needs to handle more alternative dt formats##
     try:       
         the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"])
         the_file["End"] = pd.to_datetime(year + month + day + the_file["End"])
@@ -211,17 +213,20 @@ def parse_file(filepath, filename):
         # save data to the pandas df
         dt, smk = curr_datetime, get_max(hourly_file["Density"].values)
         print(dt, smk)
+        #df = pd.DataFrame({dt, smk)
+        return dt, smk
 
     # execute the loop in a LC
     hours = range(24)
-    [do_hourloop(hour) for hour in hours]
+    for hour in hours:
+        do_hourloop(hour) 
 # +
 ## the main event ##
 reset_path()
 os.chdir("../data/shapefile_smoke_polygons")
 base_path = os.getcwd()
 dataset_years = os.listdir()
-dataset_years = os.listdir()[-2:] ########################## testing only ################3
+dataset_years = os.listdir()[-3:-2] ########################## testing only ################3
 
 # some days contain errors
 glitch_days = {"smoke20140326.shp", # CPLE_OpenFailedError 
@@ -254,7 +259,7 @@ glitch_days = {"smoke20140326.shp", # CPLE_OpenFailedError
                "smoke20180823.shp",
                "smoke20190529.shp",  # ParserError (a new one..)
                "smoke20190530.shp",
-               "smoke20190601.shp",
+               "smoke20190601.shp"
               }
 
 # create a new dataframe to store the timeseries
