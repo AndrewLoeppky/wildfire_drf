@@ -179,7 +179,8 @@ def parse_file(filepath, filename):
         the_file["Density"] = 1.000  # code for ambiguous smoke level
         
     # convert datetime format
-    try:
+    print(type(the_file["Start"]))
+    try:       
         the_file["Start"] = pd.to_datetime(year + month + day + the_file["Start"])
         the_file["End"] = pd.to_datetime(year + month + day + the_file["End"])
     except:
@@ -226,7 +227,34 @@ dataset_years = os.listdir()[-2:] ########################## testing only ######
 glitch_days = {"smoke20140326.shp", # CPLE_OpenFailedError 
                "smoke20150120.shp", # CPLE
                "smoke20150125.shp", # KeyError
-               "smoke20190529.shp"  # ParserError (a new one..)
+               "smoke20170715.shp", # ParserError
+               "smoke20170720.shp", 
+               "smoke20170817.shp", 
+               "smoke20170824.shp",
+               "smoke20170831.shp",
+               "smoke20170909.shp",
+               "smoke20180303.shp", # KeyError
+               "smoke20180512.shp", # ParserError
+               "smoke20180520.shp", # ParserError
+               "smoke20180724.shp",
+               "smoke20180725.shp",
+               "smoke20180727.shp",
+               "smoke20180801.shp",
+               "smoke20180805.shp",
+               "smoke20180808.shp",
+               "smoke20180809.shp",
+               "smoke20180810.shp",
+               "smoke20180811.shp",
+               "smoke20180812.shp",
+               "smoke20180815.shp",
+               "smoke20180816.shp",
+               "smoke20180817.shp",
+               "smoke20180821.shp",
+               "smoke20180822.shp",
+               "smoke20180823.shp",
+               "smoke20190529.shp",  # ParserError (a new one..)
+               "smoke20190530.shp",
+               "smoke20190601.shp",
               }
 
 # create a new dataframe to store the timeseries
@@ -240,13 +268,13 @@ for year in dataset_years:
     [parse_file((the_path + "\\" + file), file) for file in os.listdir()
                                                 if file[-3:] == "shp" 
                                                 if file not in glitch_days]
-                                                   
+
 
 # +
 ## Testing zone
 smoke_lvl = pd.DataFrame(columns=("datetime", "smoke_lvl"))
 
-path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2019/smoke20190529.shp"
+path_to_file = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2019/smoke20190602.shp"
 file = path_to_file[-17:]
 
 parse_file(path_to_file, file)
