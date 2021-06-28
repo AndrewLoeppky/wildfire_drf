@@ -312,6 +312,6 @@ os.chdir("../data/shapefile_smoke_polygons")
 base_path = os.getcwd()
 os.listdir()[-3:]
 
-"201706252017177 0130"[-4:]
+
 
 
