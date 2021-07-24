@@ -100,6 +100,17 @@ def reformat_datetime(dataset):
 
 
 # %%
+def resample_hourly(dataset):
+    """creates hourly data with pandas resample. Please replace this with a proper 
+    interpolation algorithm before publishing results
+    
+    https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.resample.html
+    """
+    dataset = dataset.resample("1H",on="datetime").mean()
+    return dataset
+
+
+# %%
 ### Call all the scrubbing routines
 def scrub_aeronet(dataset):
     """calls data cleaning functions and outputs a clean run of aeronet data ready for plotting
@@ -107,6 +118,7 @@ def scrub_aeronet(dataset):
     replace_999(dataset)
     dataset = drop_empty(dataset)
     dataset = reformat_datetime(dataset)
+    dataset = resample_hourly(dataset)
 
 
 # %%
@@ -159,6 +171,7 @@ def save_dataset(dataset, cols=["AOD_500nm"]):
         os.remove("../data/out_data/dataaeronet_aod.csv") # delete the old file if it exists
     except:
         pass
+    
     save_data.to_csv("../data/out_data/dataaeronet_aod.csv") # save the current one
 
 
