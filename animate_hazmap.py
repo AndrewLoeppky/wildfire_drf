@@ -1,23 +1,30 @@
-import pandas as pd
-import geopandas as gpd
-import geoplot
+# +
 import numpy as np
-import shapely
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-import matplotlib.animation as animation
+
+fig, ax = plt.subplots()
+xdata, ydata = [], []
+ln, = plt.plot([], [], 'ro')
+
+def init():
+    ax.set_xlim(0, 2*np.pi)
+    ax.set_ylim(-1, 1)
+    return ln,
+
+def update(frame):
+    xdata.append(frame)
+    ydata.append(np.sin(frame))
+    ln.set_data(xdata, ydata)
+    return ln,
+
+ani = FuncAnimation(fig, update, frames=np.linspace(0, 2*np.pi, 128),
+                    init_func=init, blit=True)
+plt.show()
+# -
 
 
 
-def main():
-    # read in a .shp
-    the_file = gpd.GeoDataFrame.from_file(
-        "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/shapefile_smoke_polygons/smoke2018/smoke20180808.shp"
-    )
 
-    fig = plt.figure()
-    ax = geoplot.polyplot(the_file)
-    ax.show()
 
-if __name__ == "__main__":
-    main()
+
