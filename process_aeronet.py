@@ -1,6 +1,4 @@
 # %%
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
 # %% [markdown]
 # # Effects of Wildfire Smoke on Forest Productivity in Central Canada.
 # ## Data Aquisition and Scrubbing - Function Library
