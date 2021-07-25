@@ -16,6 +16,8 @@ import datetime
 import time
 import os
 
+pd.set_option("display.max_columns", None)
+
 
 # %%
 ### read in data
@@ -48,7 +50,8 @@ long_test = pd.read_csv('C:/Users/Owner/Wildfire_Smoke_Mckendry/data/Waskesiu_lo
 def replace_999(dataset):
     """replaces default -999 with numpy NaN
     """
-    dataset.replace(-999.0, np.nan, inplace=True)
+    dataset = dataset.replace(-999.0, np.nan)
+    return dataset
 
 
 # %%
@@ -98,6 +101,42 @@ def reformat_datetime(dataset):
 
 
 # %%
+def keep_relevant(dataset):
+    """
+    keeps only select columns
+    """
+    relevant_cols = ["AOD_1640nm",
+                     "AOD_1020nm",
+                     "AOD_870nm",
+                     "AOD_865nm",
+                     "AOD_779nm",
+                     "AOD_675nm",
+                     "AOD_667nm",
+                     "AOD_620nm",
+                     "AOD_560nm",
+                     "AOD_555nm",
+                     "AOD_551nm",
+                     "AOD_532nm",
+                     "AOD_531nm",
+                     "AOD_510nm",
+                     "AOD_500nm",
+                     "AOD_490nm",
+                     "AOD_443nm",
+                     "AOD_440nm",
+                     "AOD_412nm",
+                     "AOD_400nm",
+                     "AOD_380nm",
+                     "AOD_340nm",
+                     "Precipitable_Water(cm)",
+                     "AOD_681nm",
+                     "AOD_709nm",
+                     "Ozone(Dobson)",
+                     "NO2(Dobson)"
+                     ]
+    return dataset[relevant_cols]
+
+
+# %%
 def resample_hourly(dataset):
     """creates hourly data with pandas resample. Please replace this with a proper 
     interpolation algorithm before publishing results
@@ -106,17 +145,6 @@ def resample_hourly(dataset):
     """
     dataset = dataset.resample("1H",on="datetime").mean()
     return dataset
-
-
-# %%
-### Call all the scrubbing routines
-def scrub_aeronet(dataset):
-    """calls data cleaning functions and outputs a clean run of aeronet data ready for plotting
-    """
-    replace_999(dataset)
-    dataset = drop_empty(dataset)
-    dataset = reformat_datetime(dataset)
-    dataset = resample_hourly(dataset)
 
 
 # %%
@@ -176,13 +204,22 @@ def save_dataset(dataset, cols=["AOD_500nm"]):
 # %%
 @timeit
 def main(dataset):
-    scrub_aeronet(dataset)
-    plot_aod(dataset)
-    save_dataset(dataset)
+    data = replace_999(dataset)
+    data = drop_empty(data)
+    data = reformat_datetime(data)
+    data = resample_hourly(data)
+    data = keep_relevant(data)    
+    data.to_csv("../data/out_data/aeronet_aod.csv")
 
 
 # %%
 main(wask_aod_15)
 
+
+# %%
+
+# %%
+
+# %%
 
 # %%
