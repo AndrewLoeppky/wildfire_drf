@@ -101,20 +101,26 @@ oas = oas.replace(-9999.0, np.nan)
 obs["TIMESTAMP_START"] = pd.to_datetime(obs["TIMESTAMP_START"], format="%Y%m%d%H%M")
 obs["TIMESTAMP_END"] = pd.to_datetime(obs["TIMESTAMP_END"], format="%Y%m%d%H%M")
 
-oas["TIMESTAMP_END"] = pd.to_datetime(oas["TIMESTAMP_START"], format="%Y%m%d%H%M")
-oas["TIMESTAMP_END"] = pd.to_datetime(oas["TIMESTAMP_END"], format="%Y%m%d%H%M")
+#oas["TIMESTAMP_START"] = pd.to_datetime(oas["TIMESTAMP_START"], format="%Y%m%d%H%M")
+#oas["TIMESTAMP_END"] = pd.to_datetime(oas["TIMESTAMP_END"], format="%Y%m%d%H%M")
 
 # %%
 obs = obs.resample("1H",on="TIMESTAMP_START").mean()
-obs = oas.resample("1H",on="TIMESTAMP_START").mean()
+#oas = oas.resample("1H",on="TIMESTAMP_START").mean()
+
+# %%
+obs
+
+# %%
 
 # %%
 obs.plot("TIMESTAMP_START", ["NEE_PI","RECO_PI"])
 
 # %%
 # save columns with CO2 fluxes as a csv 
-obs.to_csv("")
-oas.to_csv("")
+the_path = "C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/"
+#obs.to_csv(the_path + "OBS_ameriflux.csv")
+#oas.to_csv(the_path + "OAS_ameriflux.csv")
 
 # %% [markdown]
 # ## Possible algorithm
