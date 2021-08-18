@@ -54,5 +54,85 @@ Which data products are available depend on site-specific instrumentation. See p
 To scrub Ameriflux data, open `process_ameriflux.py`, edit cell 2 and run the program. It will produce a csv of hourly data. The present version keeps all fields provided in the raw dataset, and resamples for timestamps on the hour.
 
 
+### Correlating and Plotting Data
 
+Once all three datasets are saved to disk as CSV's via the three data scrubbing routines outlined above, open `make_big_plot.ipynb` in a jupyter notebook editor and enter the desired plotting parameters into the first cell (labelled 'user inputs'). This allows you to select a time period over which to **A:** Plot a time series of all three synchronized datasets over the specified interval, and **B:** Calculate the [Spearman correlation coefficient](https://towardsdatascience.com/discover-the-strength-of-monotonic-relation-850d11f72046) and corresponding P-value of any two selected varaibles. Parameters can be chosen from the following list (created for OBS ameriflux and waskesiu aeronet station, other stations may vary in notation and available data)
+
+```
+>> TIME =========================================================================
+datetime    pandas datetime objects - notation dynamically changes
+            to adjust for time period on plot
+            
+>> HAZMAP =======================================================================
+smoke       (nil, low, med, high) Smoke Level as calculated from the wildfire 
+            hazard mapping system
+            
+>> AERONET ======================================================================
+
+AOD_XXXnm  Aerosol Optical Depth at a specified wavelengh. Available wavelengths
+           are: 1020, 870, 865, 779, 675, 667, 620, 560, 555, 551, 532, 531, 
+           510, 500, 490, 443, 440, 412, 400, 380, 340 (nm)
+           Typically 500nm is taken to be representative of PAR
+
+Precipitable_Water(cm) total precipitable water in the column
+Ozone(Dobson)          calculated ozone concentration
+NO2(Dobson)            calculated nitrogen dioxide concentration
+
+>> AMERIFLUX ===================================================================
+
+-- GASES
+CO2         (umolCO2 mol-1): Carbon Dioxide (CO2) mole fraction
+H2O           (mmolH2O mol-1): Water (H2O) vapor mole fraction
+CH4        (nmolCH4 mol-1): Methane (CH4) mole fraction
+FC            (umolCO2 m-2 s-1): Carbon Dioxide (CO2) flux
+SC            (umolCO2 m-2 s-1): Carbon Dioxide (CO2) storage flux
+FCH4        (nmolCH4 m-2 s-1): Methane (CH4) flux
+SCH4        (nmolCH4 m-2 s-1): Methane (CH4) storage flux
+
+-- HEAT
+G           (W m-2): Soil heat flux
+H           (W m-2): Sensible heat flux
+LE          (W m-2): Latent heat flux
+SH          (W m-2): Heat storage in the air
+SLE         (W m-2): Latent heat storage flux
+
+-- MET_WIND
+WD            (Decimal degrees): Wind direction
+WS            (m s-1): Wind speed
+USTAR    (m s-1): Friction velocity
+ZL            (adimensional): Stability parameter
+
+-- MET_ATM
+PA             (kPa): Atmospheric pressure
+RH             (%): Relative humidity, range 0-100
+TA             (deg C): Air temperature
+VPD        (hPa): Vapor Pressure Deficit
+
+-- MET_SOIL
+SWC        (%): Soil water content (volumetric), range 0-100
+TS          (deg C): Soil temperature
+WTD        (m): Water table depth
+
+-- MET_RAD
+NETRAD       (W m-2): Net radiation
+PPFD_IN      (umolPhoton m-2 s-1): Photosynthetic photon flux density, incoming
+PPFD_OUT     (umolPhoton m-2 s-1): Photosynthetic photon flux density, outgoing
+SW_IN       (W m-2): Shortwave radiation, incoming
+SW_OUT       (W m-2): Shortwave radiation, outgoing
+LW_IN        (W m-2): Longwave radiation, incoming
+LW_OUT      (W m-2): Longwave radiation, outgoing
+
+-- MET_PRECIP
+P              (mm): Precipitation
+
+-- PRODUCTS
+NEE        (umolCO2 m-2 s-1): Net Ecosystem Exchange
+RECO        (umolCO2 m-2 s-1): Ecosystem Respiration
+GPP        (umolCO2 m-2 s-1): Gross Primary Productivity
+```
+
+After editing the "user inputs" cell, restart the kernel and run the whole program. The output is a string of text describing the correlation and p-value, a time series plot of your selected variables, and a boxplot showing your variable integrated over the selected interval, separated by Hazmap Smoke level. Sample plots:
+
+<img src="sample_timeseries.png">
+<img src="sample_boxplots.png" width="500">
 <!-- #endregion -->
