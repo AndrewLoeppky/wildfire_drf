@@ -45,8 +45,8 @@ warnings.filterwarnings('ignore')
 
 # +
 ## inputs
-date_min = pd.to_datetime("20100701")
-date_max = pd.to_datetime("20100701")
+date_min = pd.to_datetime("20050805")
+date_max = pd.to_datetime("20200614")
 
 site_lat, site_lon = 53.91439, -106.06958
 site_name = "waskesiu"
@@ -117,7 +117,7 @@ plt.show()
 range_dates = pd.date_range(start=date_min, end=date_max)
 
 # initialize the empty df
-smoke_df = pd.DataFrame(columns=("date", "smoke"))
+smoke_df = pd.DataFrame(columns=("datetime", "SMOKE"))
 
 
 def get_file(path, date):
@@ -128,8 +128,7 @@ def get_file(path, date):
 
     # add a density column if necessary (pre 2008 files lack them)
     if "Density" not in the_file.columns.values:
-        the_file["Density"] = 1.000  # code for ambiguous smoke level
-        print(f"the file{the_file}")
+        the_file["Density"] = 17.000  # code for ambiguous smoke level
 
     # convert datetime format -- ##this needs to handle more alternative dt formats##
     try:
@@ -176,7 +175,7 @@ for date in range_dates:
         # have start and end attributes that correspond to satellite passes when
         # the polygons were drawn. Actual smoke events have timescales of ~4 hrs 
         # to begin and end. This should be taken into account when applying filters
-        # e.g
+        # e.g. rolling averages etc.
         #########################################################################
         hourly_file = file #file[file["Start"] < hour]
         #hourly_file = hourly_file[hour < hourly_file["End"]]
@@ -191,15 +190,16 @@ for date in range_dates:
         # find the smokiest polygon in the list
         try:
             max_smoke = max(hourly_file["Density"].values)
-        except ValueError: # if the list is empty
+            
+        except (ValueError, TypeError): # if the list is empty
             max_smoke = 0
 
         # output to the dataframe
-        smoke_df = smoke_df.append({"date": hour, "smoke": max_smoke}, ignore_index=True)
+        smoke_df = smoke_df.append({"datetime": hour, "SMOKE": max_smoke}, ignore_index=True)
 
 # save and display the result
-#smoke_df.to_csv(f"C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/hazmap_{site_name}_short.csv")
-smoke_df
+smoke_df.to_csv(f"C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/hazmap_{site_name}.csv")
+#smoke_df
 # -
 
 
