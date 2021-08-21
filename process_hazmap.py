@@ -45,8 +45,8 @@ warnings.filterwarnings('ignore')
 
 # +
 ## inputs
-date_min = pd.to_datetime("20190530")
-date_max = pd.to_datetime("20190928")
+date_min = pd.to_datetime("20100701")
+date_max = pd.to_datetime("20100701")
 
 site_lat, site_lon = 53.91439, -106.06958
 site_name = "waskesiu"
@@ -129,6 +129,7 @@ def get_file(path, date):
     # add a density column if necessary (pre 2008 files lack them)
     if "Density" not in the_file.columns.values:
         the_file["Density"] = 1.000  # code for ambiguous smoke level
+        print(f"the file{the_file}")
 
     # convert datetime format -- ##this needs to handle more alternative dt formats##
     try:
@@ -147,8 +148,8 @@ def clip_file(the_file, bbox):
     """
     the_file.crs = {"init": "epsg:4326"}
     the_file = the_file.to_crs(epsg=4326)
-    #the_file = gpd.clip(the_file, plot_bbox) # bug in clipping function needs to be sorted before animation is possible
-    #the_file.reset_index(inplace=True, drop=True)
+    the_file = gpd.clip(the_file, plot_bbox) # bug in clipping function needs to be sorted before animation is possible
+    the_file.reset_index(inplace=True, drop=True)
     return the_file
 
 print(f"Analyzing Hazmap Smoke Levels at {site_name} from {date_min.year}{date_min.month}{date_min.day} to {date_max.year}{date_max.month}{date_max.day}")
@@ -164,14 +165,21 @@ for date in range_dates:
     except: # if file DNE
         file = get_file(empty_file, date)
         print(f"Data missing from {date.year}-{date.month}-{date.day}")
-    clip_file(file, plot_bbox)
+    #file = clip_file(file, plot_bbox) # implement this after you fix the plotting function
 
     # loop through each hour in the file and append the dataframe (this could be made faster)
     range_hours = pd.date_range(start=date, periods=24, freq="H")
     for hour in range_hours:
         # filter by hour
-        hourly_file = file[file["Start"] < hour]
-        hourly_file = hourly_file[hour < hourly_file["End"]]
+        #########################################################################
+        # Right now, plot will produce smoke 'for the day'. actual smoke polygons
+        # have start and end attributes that correspond to satellite passes when
+        # the polygons were drawn. Actual smoke events have timescales of ~4 hrs 
+        # to begin and end. This should be taken into account when applying filters
+        # e.g
+        #########################################################################
+        hourly_file = file #file[file["Start"] < hour]
+        #hourly_file = hourly_file[hour < hourly_file["End"]]
         
         # plotting routine goes HERE
         
@@ -190,7 +198,7 @@ for date in range_dates:
         smoke_df = smoke_df.append({"date": hour, "smoke": max_smoke}, ignore_index=True)
 
 # save and display the result
-smoke_df.to_csv(f"C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/hazmap_{site_name}_short.csv")
+#smoke_df.to_csv(f"C:/Users/Owner/Wildfire_Smoke_Mckendry/data/out_data/hazmap_{site_name}_short.csv")
 smoke_df
 # -
 
@@ -201,8 +209,6 @@ smoke_df
 
 
 
-
-#
 
 
 
